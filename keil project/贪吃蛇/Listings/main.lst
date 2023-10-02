@@ -1,0 +1,204 @@
+C51 COMPILER V9.54   MAIN                                                                  09/23/2023 15:16:51 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\keil c51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\mai
+                    -n.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <regx52.h>
+   2          #include <HC595.h>
+   3          #include <KeyNum.h>
+   4          #include <delay.h>
+   5          
+   6          
+   7          
+   8          unsigned int mode=12;
+   9          unsigned int THL=65535-1000; //1000us=1ms
+  10          void Timer0_INIT()              //定时器0初始化，用于蛇头的更新。
+  11          {
+  12   1              TMOD=0x01;
+  13   1              TR0=1;
+  14   1              ET0=1;
+  15   1              TH0=THL/256;
+  16   1              TL0=THL%256;
+  17   1              TF0=0;
+  18   1              PT0=0;
+  19   1              EA=1;
+  20   1      }
+  21          
+  22          int head_x=0,head_y=0;  //初始化蛇头位置
+  23          int length=1;
+  24          int body_x[14]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},body_y[14]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+             -,-1,-1};                //给body的xy全部赋值为-1，防止先显示在点阵LCD后赋值。当X、Y为-1时不显示。
+  25          int food_x,food_y;
+  26          int suiji[2]={3,7};
+  27          
+  28          void food_produce()             //定义食物产生
+  29          {
+  30   1              food_x=suiji[0]%10;if(suiji[0]%10>=8)food_x=5;
+  31   1              food_y=suiji[1]%10;if(suiji[1]%10>=8)food_y=7;
+  32   1              suiji[0]=suiji[0]+3;
+  33   1              suiji[1]=suiji[1]+7;
+  34   1      }
+  35          
+  36          void eat()                      //定义吃掉食物
+  37          {
+  38   1              if(head_x==food_x){
+  39   2              if(head_y==food_y){length++;food_x=8;food_y=8;food_produce();}          //当蛇头xy轴与食物坐标重合，长度+1
+  40   2              }
+  41   1      }
+  42          
+  43          
+  44          void body_init()                //蛇身初始化
+  45          {
+  46   1      int x;
+  47   1      for(x=0;x<15;x++)
+  48   1      {
+  49   2      body_x[x]=-1;body_y[x]=-1;}
+  50   1      }
+  51          
+  52          
+  53          int dead;
+C51 COMPILER V9.54   MAIN                                                                  09/23/2023 15:16:51 PAGE 2   
+
+  54          void death()                    //for循环检测蛇头head与蛇身body是否重合，一旦重合立即将body、length初始化
+  55          {                                                                       //21.11.5发现BUG：定时器中刚好给body_[0]赋值时恰好执行death，会导致莫名其妙death
+  56   1              for(dead=0;dead<12;dead++)                      //解决方法：把death写到定时器中
+  57   1              {
+  58   2              if(head_x==body_x[dead]){if(head_y==body_y[dead]){length=1;body_init();}}
+  59   2              }
+  60   1      }
+  61          
+  62          
+  63                  int i;
+  64                  unsigned char KEYNUM;
+  65          void main()
+  66          {
+  67   1              LCD_INIT();
+  68   1              Timer0_INIT();
+  69   1              food_produce();
+  70   1              while(1){
+  71   2                      if(mode!=10){if(KEYNUM==10)mode=10;}            //矩阵键盘扫描，使用变量mode控制蛇的上下左右
+  72   2                      if(mode!=12){if(KEYNUM==12)mode=12;}
+  73   2                      if(mode!=15){if(KEYNUM==15)mode=15;}
+  74   2                      if(mode!=7){if(KEYNUM==7)mode=7;}
+  75   2                      Code_tran(head_x,head_y);
+  76   2                      Code_tran(food_x,food_y);
+  77   2                      eat();                                                                          //判定是否吃食物
+  78   2                      switch(length){                                         //根据蛇身长度，去显示LCD矩阵
+  79   3                              case 1:Code_tran(body_x[0],body_y[0]);break;
+  80   3                              case 2:Code_tran(body_x[0],body_y[0]);
+  81   3                                                       Code_tran(body_x[1],body_y[1]);break;
+  82   3                              case 3:Code_tran(body_x[0],body_y[0]);
+  83   3                                                       Code_tran(body_x[1],body_y[1]);
+  84   3                                                       Code_tran(body_x[2],body_y[2]);break;
+  85   3                              case 4:for(i=0;i<5;i++){Code_tran(body_x[i],body_y[i]);}break;
+  86   3                              case 5:for(i=0;i<6;i++){Code_tran(body_x[i],body_y[i]);}break;
+  87   3                              case 6:for(i=0;i<7;i++){Code_tran(body_x[i],body_y[i]);}break;
+  88   3                              case 7:for(i=0;i<8;i++){Code_tran(body_x[i],body_y[i]);}break;
+  89   3                              case 8:for(i=0;i<9;i++){Code_tran(body_x[i],body_y[i]);}break;
+  90   3                              case 9:for(i=0;i<10;i++){Code_tran(body_x[i],body_y[i]);}break;
+  91   3                              case 10:for(i=0;i<11;i++){Code_tran(body_x[i],body_y[i]);}break;
+  92   3                              case 11:for(i=0;i<12;i++){Code_tran(body_x[i],body_y[i]);}break;
+  93   3                              case 12:for(i=0;i<13;i++){Code_tran(body_x[i],body_y[i]);}break;
+  94   3                              case 13:for(i=0;i<14;i++){Code_tran(body_x[i],body_y[i]);}break;
+  95   3                              case 14:for(i=0;i<15;i++){Code_tran(body_x[i],body_y[i]);}break;
+  96   3                }
+  97   2               }
+  98   1              }
+  99          
+ 100          
+ 101          
+ 102          
+ 103          void snake_head()
+ 104          {
+ 105   1              switch(mode)
+ 106   1              {
+ 107   2                      case 10:head_x--;if(head_x<=-1)head_x=7;break;
+ 108   2                      case 12:head_x++;if(head_x>=8)head_x=0;break;
+ 109   2                      case 7:head_y++;if(head_y>=8)head_y=0;break;
+ 110   2                      case 15:head_y--;if(head_y<=-1)head_y=7;break;
+ 111   2                      default:break;
+ 112   2              }
+ 113   1      }
+ 114          
+ 115          
+C51 COMPILER V9.54   MAIN                                                                  09/23/2023 15:16:51 PAGE 3   
+
+ 116          
+ 117          int o,p;                                                        //o用于计数循环，p=o+1；即body_xy[p]=body_xy[o]
+ 118          void snake_body()                       //蛇身基本原理：将上一位依次写给下一位，蛇身第一位由蛇头赋值。
+ 119          {                                                                                       //可以改成for循环语句，191602020107ZG，2021.11.4
+ 120   1              switch(length){
+ 121   2                      case 1:body_x[0]=head_x;body_y[0]=head_y;break;
+ 122   2                      case 2:body_x[1]=body_x[0];body_y[1]=body_y[0];         
+ 123   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 124   2                      case 3:for(o=2;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}                
+ 125   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 126   2                      case 4:for(o=3;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}                
+ 127   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 128   2                      case 5:for(o=4;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}
+ 129   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 130   2                      case 6:for(o=5;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}                
+ 131   2                                               body_x[0]=head_x;body_y[0]=head_y;break;       
+ 132   2                      case 7:for(o=6;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}                
+ 133   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 134   2                      case 8:for(o=7;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}                
+ 135   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 136   2          case 9:for(o=8;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}            
+ 137   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 138   2                      case 10:for(o=9;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}               
+ 139   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 140   2                      case 11:for(o=10;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}              
+ 141   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 142   2                      case 12:for(o=11;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}              
+ 143   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 144   2                      case 13:for(o=12;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}              
+ 145   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 146   2                      case 14:for(o=13;o>-1;o--){p=o+1;body_x[p]=body_x[o];body_y[p]=body_y[o];}              
+ 147   2                                               body_x[0]=head_x;body_y[0]=head_y;break;
+ 148   2                      default: length=1;
+ 149   2              }
+ 150   1      }
+ 151          
+ 152          
+ 153          
+ 154          
+ 155          
+ 156          
+ 157          unsigned int clock=0,clock2=0;
+ 158          void Timer0() interrupt 1
+ 159          {
+ 160   1              clock++;
+ 161   1              clock2++;
+ 162   1              TH0=THL/256;
+ 163   1              TL0=THL%256;
+ 164   1              if(clock2>=150){KEYNUM=KeyNumGet();clock2=0;}           //设定15ms获取一次键值，防止LCD矩阵快速频闪
+ 165   1              if(clock>=400)                  //0.4s更新一次head
+ 166   1              {
+ 167   2              clock=0;
+ 168   2              P2_0=!P2_0;
+ 169   2              snake_body();           //更新身体
+ 170   2              snake_head();           //更新头部
+ 171   2              death();                                //判断是否头部与身体重合，重合即执行death
+ 172   2              }
+ 173   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2540    ----
+C51 COMPILER V9.54   MAIN                                                                  09/23/2023 15:16:51 PAGE 4   
+
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     87    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

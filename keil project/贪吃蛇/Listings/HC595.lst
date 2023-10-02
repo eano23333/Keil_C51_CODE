@@ -1,0 +1,79 @@
+C51 COMPILER V9.54   HC595                                                                 09/23/2023 15:16:40 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE HC595
+OBJECT MODULE PLACED IN .\Objects\HC595.obj
+COMPILER INVOKED BY: D:\keil c51\C51\BIN\C51.EXE HC595.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\HC
+                    -595.lst) OBJECT(.\Objects\HC595.obj)
+
+line level    source
+
+   1          #include <regx52.h>
+   2          #include <HC595.h>
+   3          #include <delay.h>
+   4          
+   5          void HC595_write(unsigned char byte)
+   6          {
+   7   1      unsigned char i;
+   8   1      for(i=0;i<8;i++)
+   9   1              {
+  10   2              SER=byte&(0x80>>i);                     //写入数据,从第高位（1000 0000）开始写入，for循环将8位全部写入
+  11   2              SCK=1;                                                                  //移位
+  12   2              SCK=0;                                                                  //移位寄存器置零
+  13   2              }
+  14   1      RCK=1;                                                                          //锁存8位数据，for循环结束后，全部输出
+  15   1      RCK=0;
+  16   1      }
+  17          
+  18          unsigned char Column;
+  19          unsigned char Data;
+  20          void LCD_Show(Column,Data)              //Column列，Data数据
+  21          {
+*** WARNING C235 IN LINE 21 OF HC595.c: parameter 1: different types
+*** WARNING C235 IN LINE 21 OF HC595.c: parameter 2: different types
+  22   1              HC595_write(Data);
+  23   1              P0=~(0x80>>Column);
+  24   1              delay(1);
+  25   1              P0=0xFF;
+  26   1      }
+  27          
+  28          void LCD_INIT()
+  29          {
+  30   1              RCK=0;
+  31   1              SCK=0;
+  32   1      }
+  33          
+  34          void Code_tran(int x,int y)             //将x，y解码为具体的列与数据，以便于批量写入
+  35          {
+  36   1              Column=x;                                                                                       //列
+  37   1              switch(y)
+  38   1              {
+  39   2                      case 0:Data=0x01;break;
+  40   2                      case 1:Data=0x02;break;
+  41   2                      case 2:Data=0x04;break;
+  42   2                      case 3:Data=0x08;break;
+  43   2                      case 4:Data=0x10;break;
+  44   2                      case 5:Data=0x20;break;
+  45   2                      case 6:Data=0x40;break;
+  46   2                      case 7:Data=0x80;break;                 
+  47   2              }
+  48   1              LCD_Show(Column,Data);
+  49   1      }
+  50          
+  51          
+
+C51 COMPILER V9.54   HC595                                                                 09/23/2023 15:16:40 PAGE 2   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    177    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

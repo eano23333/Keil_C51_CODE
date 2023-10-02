@@ -1,0 +1,44 @@
+C51 COMPILER V9.54   FOOD                                                                  11/04/2021 21:37:54 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE FOOD
+OBJECT MODULE PLACED IN .\Objects\food.obj
+COMPILER INVOKED BY: F:\KEIL5MDK\C51\BIN\C51.EXE food.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\foo
+                    -d.lst) TABS(2) OBJECT(.\Objects\food.obj)
+
+line level    source
+
+   1          #include <regx52.h>
+   2          #include <main.h>
+   3          
+   4          int food_x,food_y;
+   5          int suiji[2]={3,2};
+   6          void food_produce()
+   7          {
+   8   1        food_x=suiji[0]%10;if(suiji[0]%10>=8)food_x=5;
+   9   1        food_y=suiji[1]%10;if(suiji[1]%10>=8)food_y=7;
+  10   1        suiji[0]=suiji[0]+3;
+  11   1        suiji[1]=suiji[1]+7;
+  12   1      }
+  13          
+  14          void eat()
+  15          {
+  16   1        if(head_x==food_x){
+  17   2        if(head_y==food_y)length++;   //当蛇头xy轴与食物坐标重合，长度+1
+  18   2        }
+  19   1        food_produce();
+  20   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    118    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

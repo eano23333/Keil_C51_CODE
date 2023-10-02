@@ -1,0 +1,6 @@
+".\Objects\main.obj",
+".\Objects\delay.obj",
+".\Objects\HC595.obj",
+".\Objects\KeyNum.obj" 
+TO ".\Objects\tcs" 
+PRINT(".\Listings\tcs.m51") RAMSIZE(256) 

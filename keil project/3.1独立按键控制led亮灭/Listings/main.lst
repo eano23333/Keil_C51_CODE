@@ -1,0 +1,26 @@
+C51 COMPILER V9.54   MAIN                                                                  08/11/2023 17:30:02 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\keil c51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\mai
+                    -n.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          void Delay1ms()         //@11.0592MHz
+   2          {
+   3   1              unsigned char data i, j;
+   4   1      
+   5   1              _nop_();
+*** WARNING C206 IN LINE 5 OF main.c: '_nop_': missing function-prototype
+*** ERROR C264 IN LINE 5 OF main.c: intrinsic '_nop_': declaration/activation error
+   6   1              i = 2;
+   7   1              j = 199;
+   8   1              do
+   9   1              {
+  10   2                      while (--j);
+  11   2              } while (--i);
+  12   1      }
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  1 ERROR(S)
